@@ -1,13 +1,27 @@
 import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
 import sys
 import os
-import subprocess
-import json
+import traceback
 
-# Import the core engine logic
-from gsm_engine import GSMEngine
+try:
+    import numpy as np
+    import matplotlib
+    # Force non-interactive backend for headless environments
+    matplotlib.use('Agg') 
+    import matplotlib.pyplot as plt
+    import json
+    import subprocess
+    
+    # Import custom modules
+    import floquet_prototype
+    # Import the core engine logic
+    from gsm_engine import GSMEngine
+
+except Exception as e:
+    st.error("🚨 Critical Error during application startup 🚨")
+    st.write(f"Error Message: {str(e)}")
+    st.code(traceback.format_exc())
+    st.stop()
 
 st.set_page_config(page_title="Robin Space | Phased Array Tool", layout="wide")
 
