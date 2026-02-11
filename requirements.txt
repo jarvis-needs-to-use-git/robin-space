@@ -1,3 +1,4 @@
 streamlit==1.42.0
 numpy
 matplotlib
+# Force rebuild 1
