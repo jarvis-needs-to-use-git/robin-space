@@ -12,20 +12,30 @@ from gsm_engine import GSMEngine
 st.set_page_config(page_title="Robin Space | Phased Array Tool", layout="wide")
 
 # Constants
-MEEP_CONDA_PATH = "/home/moltbot/miniconda/bin/conda"
-MEEP_ENV_PATH = "/home/moltbot/.openclaw/workspace/projects/robin-space/meep_env"
+# Constants
+# Try to find conda in standard locations or use a default
+MEEP_CONDA_PATH = os.environ.get("MEEP_CONDA_PATH", "conda")
+MEEP_ENV_PATH = os.environ.get("MEEP_ENV_PATH", "robin-space-env")
 
 def run_meep_sim(theta, freq):
     """Bridge to the Meep environment."""
+    # Check if we are on a system that likely has meep
+    # usage of 'conda run' requires conda to be in path or specified
+    
     cmd = [
         MEEP_CONDA_PATH, "run", "-p", MEEP_ENV_PATH, "python", 
         "floquet_prototype.py", "--theta", str(theta), "--freq", str(freq), "--json"
     ]
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True, cwd="projects/robin-space")
+        # On Windows, 'conda' might be a batch file or executable, requiring shell=True or full path
+        # But for robustness, let's try direct execution first.
+        # If conda is not found, this will raise FileNotFoundError
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True, cwd=".")
         return json.loads(result.stdout)
+    except FileNotFoundError:
+        return {"error": "Conda/Meep not found. Please configure MEEP_CONDA_PATH.", "status": "mock"}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e), "status": "error"}
 
 # Sidebar for Input Parameters
 st.sidebar.header("📡 Simulation Parameters")

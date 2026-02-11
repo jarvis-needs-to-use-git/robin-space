@@ -1,4 +1,7 @@
-import meep as mp
+try:
+    import meep as mp
+except ImportError:
+    mp = None
 import numpy as np
 import argparse
 import json
@@ -10,6 +13,15 @@ def run_floquet_simulation(theta_deg, freq=1.0, resolution=20):
     theta_deg: Scanning angle in degrees.
     freq: Center frequency (in Meep units, usually freq_ghz / c_base).
     """
+    if mp is None:
+        return {
+            "theta_deg": theta_deg,
+            "freq": freq,
+            "active_reflection_coefficient": 0.0,
+            "active_reflection_db": -100.0,
+            "status": "meep_not_found_mock_data"
+        }
+
     # 1. Geometry & Cell
     L = 1.0 # Normalized wavelength or period
     dpml = 0.5
