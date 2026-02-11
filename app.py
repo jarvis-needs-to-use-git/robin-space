@@ -28,7 +28,8 @@ def run_meep_sim(theta, freq):
         try:
             return floquet_prototype.run_floquet_simulation(theta, freq)
         except Exception as e:
-            return {"error": f"Direct execution failed: {str(e)}", "status": "error"}
+            import traceback
+            return {"error": f"Direct execution failed: {str(e)}", "status": "error", "traceback": traceback.format_exc()}
 
     # STRATEGY 2: Subprocess via 'conda run' (For Windows -> WSL cross-calling)
     # If we are here, it means we are likely on Windows without meep installed locally,
@@ -104,14 +105,27 @@ with col2:
     st.info(f"Frequency: {freq} GHz\nGrid: {dx}λ x {dy}λ")
 
 st.markdown("---")
+# Debug Info
+with st.expander("Debug Information"):
+    st.write(f"Meep Module Loaded: {floquet_prototype.mp is not None}")
+    st.write(f"Conda Path: {MEEP_CONDA_PATH}")
+    st.write(f"Env Path: {MEEP_ENV_PATH}")
+
 if st.button("🚀 Run Meep Simulation (Single Point)"):
     with st.spinner(f"Running Meep simulation at {theta_target}°..."):
-        res = run_meep_sim(theta_target, freq)
-        if "error" in res:
-            st.error(f"Simulation failed: {res['error']}")
-        else:
-            st.success("Simulation Complete")
-            st.json(res)
+        try:
+            res = run_meep_sim(theta_target, freq)
+            if "error" in res:
+                st.error(f"Simulation failed: {res['error']}")
+                if "traceback" in res:
+                    st.code(res["traceback"])
+            else:
+                st.success("Simulation Complete")
+                st.json(res)
+        except Exception as e:
+            import traceback
+            st.error("An unexpected error occurred during execution.")
+            st.code(traceback.format_exc())
 
 st.button("💾 Export to .s1p")
 st.caption("Developed by Jarvis for Robin Space.")
