@@ -12,6 +12,8 @@ from gsm_engine import GSMEngine
 st.set_page_config(page_title="Robin Space | Phased Array Tool", layout="wide")
 
 # Constants
+import floquet_prototype
+
 # Constants
 # Try to find conda in standard locations or use a default
 MEEP_CONDA_PATH = os.environ.get("MEEP_CONDA_PATH", "conda")
@@ -19,8 +21,18 @@ MEEP_ENV_PATH = os.environ.get("MEEP_ENV_PATH", "robin-space-env")
 
 def run_meep_sim(theta, freq):
     """Bridge to the Meep environment."""
-    # Check if we are on a system that likely has meep
-    # usage of 'conda run' requires conda to be in path or specified
+    
+    # STRATEGY 1: Direct Module Call (Preferred for Cloud/Local Native)
+    # If floquet_prototype successfully imported meep, just call it.
+    if floquet_prototype.mp is not None:
+        try:
+            return floquet_prototype.run_floquet_simulation(theta, freq)
+        except Exception as e:
+            return {"error": f"Direct execution failed: {str(e)}", "status": "error"}
+
+    # STRATEGY 2: Subprocess via 'conda run' (For Windows -> WSL cross-calling)
+    # If we are here, it means we are likely on Windows without meep installed locally,
+    # and we want to try to reach into WSL.
     
     cmd = [
         MEEP_CONDA_PATH, "run", "-p", MEEP_ENV_PATH, "python", 
