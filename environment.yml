@@ -7,6 +7,5 @@ dependencies:
   - pymeep
   - numpy
   - matplotlib
+  - streamlit
   - pip
-  - pip:
-    - streamlit
