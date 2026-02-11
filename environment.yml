@@ -4,8 +4,6 @@ channels:
   - defaults
 dependencies:
   - python=3.10
-  - pymeep
   - numpy
-  - matplotlib
   - streamlit
   - pip
