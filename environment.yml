@@ -1,0 +1,12 @@
+name: robin-space-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pymeep
+  - numpy
+  - matplotlib
+  - pip
+  - pip:
+    - streamlit
